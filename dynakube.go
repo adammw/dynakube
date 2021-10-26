@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -140,22 +141,6 @@ func (c *Client) Status() client.StatusWriter {
 
 func (c *Client) PrependReactor(verb string, resource string, action func(action testing.Action) (handled bool, ret runtime.Object, err error)) {
 	c.client.PrependReactor(verb, resource, action)
-}
-
-func (c *Client) AddObjects(objs ...runtime.Object) error {
-	objects, err := convertObjectsToUnstructured(c.scheme, objs)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, obj := range objects {
-		err := c.client.Tracker().Add(obj)
-		if err != nil { // untested section
-			return err
-		}
-
-	}
-	return nil
 }
 
 func getGVRFromObject(obj runtime.Object, scheme *runtime.Scheme) (schema.GroupVersionResource, error) {
