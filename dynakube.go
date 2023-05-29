@@ -106,6 +106,14 @@ func (c *Client) RESTMapper() meta.RESTMapper {
 	panic("implement me")
 }
 
+func (c *Client) GroupVersionKindFor(obj runtime.Object) (schema.GroupVersionKind, error) {
+	return apiutil.GVKForObject(obj, c.scheme)
+}
+
+func (c *Client) IsObjectNamespaced(obj runtime.Object) (bool, error) {
+	panic("implement me")
+}
+
 var _ client.Client = &Client{}
 
 // Get retrieves an obj for the given object key from the Kubernetes Cluster.
@@ -123,7 +131,7 @@ func (c *Client) List(ctx context.Context, list client.ObjectList, opts ...clien
 		return fmt.Errorf("unable to convert %T to %T", listOpts, metav1ListOpts)
 	}
 
-	gvk, _ := apiutil.GVKForObject(list, c.scheme)
+	gvk, _ := c.GroupVersionKindFor(list)
 	gvk.Kind = gvk.Kind[:len(gvk.Kind)-4] /*base library appends List*/
 	gvr, _ := meta.UnsafeGuessKindToResource(gvk)
 
